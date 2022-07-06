@@ -25,7 +25,8 @@ public class Main {
             System.out.println("OG: \n" + d.printData(d.map));
             System.out.println("Reverse: \n" + d.printData(d.reverse));
 
-            System.out.println("End: " + d.findEnd());
+            d.orderMap(d.findEnd());
+
 //           System.out.println(data.toString());
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
@@ -61,8 +62,8 @@ class Relation {
     }
 }
 class DataOrganizer {
-    HashMap<String, List<String>> map = new HashMap<>();
-    HashMap<String, List<String>> reverse = new HashMap<>();
+    HashMap<String, List<Relation>> map = new HashMap<>();
+    HashMap<String, List<Relation>> reverse = new HashMap<>();
 
     DataOrganizer(List<Relation> relations) {
         for(Relation r: relations) {
@@ -83,8 +84,8 @@ class DataOrganizer {
                 reverse.put(r.end, new ArrayList<>());
             }
 
-            map.get(r.start).add(r.end);
-            reverse.get(r.end).add(r.start);
+            map.get(r.start).add(r);
+            reverse.get(r.end).add(r);
         }
     }
 
@@ -92,7 +93,7 @@ class DataOrganizer {
         List<String> end = new ArrayList<>();
 
         for(String key: map.keySet()) {
-            List<String> item = map.get(key);
+            List<Relation> item = map.get(key);
             if (item.isEmpty()) {
                 // found an end piece
                 end.add(key);
@@ -101,12 +102,38 @@ class DataOrganizer {
         return end;
     }
 
-    public String printData(HashMap<String, List<String>> data) {
+    public void orderMap(List<String> node) {
+        System.out.println(node);
+        // probably would be better for work with these as relations
+        // map them as a list of relations
+        // then we can check what the parent is without having to scan the map?
+        /*
+            !empty
+            for each item, look for them in the reverse
+            check for relations up?
+
+
+         */
+        if(!node.isEmpty()) {
+            for (String key: node) {
+                List<String> items = new ArrayList<>();
+                for (Relation r: reverse.get(key)) {
+                    items.add(r.start);
+                }
+                orderMap(items);
+            }
+        } else {
+            // I guess we are all done
+        }
+
+    }
+
+    public String printData(HashMap<String, List<Relation>> data) {
         StringBuilder b = new StringBuilder();
         for (String key: data.keySet()) {
             b.append(key + ": ");
-            for (String item: data.get(key)) {
-                b.append(item + ", ");
+            for (Relation item: data.get(key)) {
+                b.append(item.end + ", ");
             }
             b.append("\n");
         }
