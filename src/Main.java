@@ -9,34 +9,23 @@ public class Main {
         /// File reading class
         try {
             List<Relation> data = readFile("./src/clothing.txt");
-
-            HashMap<String, List<String>> map = new HashMap<>();
-            // add first item
-            // add relation to first item
-            // add second item if not exists
-            for(Relation r: data) {
-                if (!map.containsKey(r.start)) {
-                    map.put(r.start, new ArrayList<>());
-                }
-                if (!map.containsKey(r.end)) {
-                    map.put(r.end, new ArrayList<>());
-                }
-
-                map.get(r.end).add(r.start);
-            }
+            DataOrganizer d = new DataOrganizer(data);
 
 
-            StringBuilder builder = new StringBuilder();
-            for (String key: map.keySet()) {
-                builder.append(key + ": ");
-                for (String item: map.get(key)) {
-                    builder.append(item + ", ");
-                }
-                builder.append("\n");
-            }
+            // need to find the end
+//            for (String key: map.keySet()) {
+//                for (String item: map.get(key)) {
+//                    // look for the end and work backwards
+//                    if (item.length() == 0) {
+//                        reverse.get(item);
+//                    }
+//                }
+//            }
 
-            System.out.println(builder.toString());
+            System.out.println("OG: \n" + d.printData(d.map));
+            System.out.println("Reverse: \n" + d.printData(d.reverse));
 
+            System.out.println("End: " + d.findEnd());
 //           System.out.println(data.toString());
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
@@ -71,14 +60,57 @@ class Relation {
         this.end = end;
     }
 }
-class Graphs {
-    List<List<String>> data = new ArrayList<>();
+class DataOrganizer {
+    HashMap<String, List<String>> map = new HashMap<>();
+    HashMap<String, List<String>> reverse = new HashMap<>();
 
-    Graphs(List<Relation> relations) {
+    DataOrganizer(List<Relation> relations) {
+        for(Relation r: relations) {
+            // add first item
+            // add relation to first item
+            // add second item if not exists
+            if (!map.containsKey(r.start)) {
+                map.put(r.start, new ArrayList<>());
+            }
+            if (!map.containsKey(r.end)) {
+                map.put(r.end, new ArrayList<>());
+            }
 
-        for (Relation r : relations) {
+            if (!reverse.containsKey(r.start)) {
+                reverse.put(r.start, new ArrayList<>());
+            }
+            if (!reverse.containsKey(r.end)) {
+                reverse.put(r.end, new ArrayList<>());
+            }
 
+            map.get(r.start).add(r.end);
+            reverse.get(r.end).add(r.start);
         }
+    }
+
+    public List<String> findEnd() {
+        List<String> end = new ArrayList<>();
+
+        for(String key: map.keySet()) {
+            List<String> item = map.get(key);
+            if (item.isEmpty()) {
+                // found an end piece
+                end.add(key);
+            }
+        }
+        return end;
+    }
+
+    public String printData(HashMap<String, List<String>> data) {
+        StringBuilder b = new StringBuilder();
+        for (String key: data.keySet()) {
+            b.append(key + ": ");
+            for (String item: data.get(key)) {
+                b.append(item + ", ");
+            }
+            b.append("\n");
+        }
+        return b.toString();
     }
 }
 
