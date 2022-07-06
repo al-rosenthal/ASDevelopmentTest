@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.Array;
 import java.util.*;
 
 public class Main {
@@ -11,10 +12,13 @@ public class Main {
             DataGraph data = readFile("./src/clothing.txt");
 
            System.out.println(data.toString());
-            DataGraph.sortData(data);
+//            DataGraph.sortData(data);
+            DataGraph.newSort(data);
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
         }
     }
 
@@ -46,6 +50,35 @@ public class Main {
                 if (graph.find(end.value) == null) {
                     graph.add(end);
                 }
+
+
+                // track this to find entry point into graph
+                if (!graph.dataMap.containsKey(start.value)) {
+                    graph.dataMap.put(start.value, new ArrayList<>());
+                }
+                if (!graph.dataMap.containsKey(end.value)) {
+                    graph.dataMap.put(end.value, new ArrayList<>());
+                }
+                graph.dataMap.get(end.value).add(start.value);
+
+                /*
+                HashMap<String, List<String>> map = new HashMap<>();
+                    HashMap<String, List<String>> reverse = new HashMap<>();
+
+                    DataOrganizer(List<Relation> relations) {
+                        for(Relation r: relations) {
+
+                            if (!reverse.containsKey(r.start)) {
+                                reverse.put(r.start, new ArrayList<>());
+                            }
+                            if (!reverse.containsKey(r.end)) {
+                                reverse.put(r.end, new ArrayList<>());
+                            }
+
+                            reverse.get(r.end).add(r.start);
+                        }
+                    }
+                 */
             }
         }
         scanner.close();
@@ -73,9 +106,9 @@ class Relation {
     }
 }
 
-
 class DataGraph {
     List<Relation> nodes = new ArrayList<>();
+    HashMap<String, List<String>> dataMap = new HashMap<>();
 
     public void add(Relation r) {
         this.nodes.add(r);
@@ -91,8 +124,71 @@ class DataGraph {
 
         return found;
     }
-    public static void sortData(DataGraph g) {
 
+    public static List<String> entryPoints(DataGraph g) {
+        List<String> entry = new ArrayList<>();
+        for (String key: g.dataMap.keySet()) {
+            if (g.dataMap.get(key).isEmpty()) {
+                entry.add(key);
+            }
+        }
+        return entry;
+    }
+
+    /*
+      L ← Empty list that will contain the sorted elements
+      S ← Set of all nodes with no incoming edge
+
+      while S is not empty do
+          remove a node n from S
+          add n to L
+          for each node m with an edge e from n to m do
+              remove edge e from the graph
+              if m has no other incoming edges then
+                  insert m into S
+
+      if graph has edges then
+          return error   (graph has at least one cycle)
+      else
+          return L   (a topologically sorted order)
+   */
+    public static void newSort(DataGraph g) throws Exception {
+        // get starting points
+        List<String> entryPoints = DataGraph.entryPoints(g);
+        List<String> finalOrder = new ArrayList<>();
+
+        int n = g.nodes.size();
+        int[] inDegree = new int[n];
+
+        for (int i = 0; i < g.dataMap.keySet().size(); i++) {
+
+        }
+
+        for (String key: g.dataMap.keySet()) {
+            for(String edge: g.dataMap.get(key)) {
+
+            }
+        }
+
+//        for(List<String> edges: g.dataMap) {
+//
+//        }
+
+
+        if (entryPoints.size() > 0) {
+            while(!entryPoints.isEmpty()) {
+                String key = entryPoints.remove(0);
+                finalOrder.add(key);
+
+
+            }
+        } else {
+            throw new Exception("Data has no logical start point.");
+        }
+        System.out.println(entryPoints);
+    }
+
+    public static void sortData(DataGraph g) {
         List<String> finalOrder = new ArrayList<>();
         // track any node/ values that have already been checked
         HashMap<String, Boolean> checked = new HashMap<>();
@@ -117,7 +213,7 @@ class DataGraph {
         // item has been checked
         checked.replace(value, true);
         Relation node = g.find(value);
-
+        System.out.println("Item to Check: " + value);
         if (node != null) {
             // check other relations
             for (String next : node.next) {
