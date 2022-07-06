@@ -9,26 +9,9 @@ public class Main {
         /// File reading class
         try {
             DataGraph data = readFile("./src/clothing.txt");
-//            DataOrganizer d = new DataOrganizer(data);
 
-
-
-            // need to find the end
-//            for (String key: map.keySet()) {
-//                for (String item: map.get(key)) {
-//                    // look for the end and work backwards
-//                    if (item.length() == 0) {
-//                        reverse.get(item);
-//                    }
-//                }
-//            }
-
-//            System.out.println("OG: \n" + d.printData(d.map));
-//            System.out.println("Reverse: \n" + d.printData(d.reverse));
-
-//            d.orderMap(d.findEnd());
-
-           System.out.println(data.nodes.toString());
+           System.out.println(data.toString());
+            DataGraph.sortData(data);
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -86,7 +69,7 @@ class Relation {
 
     @Override
     public String toString() {
-        return value + ": " + next + ".";
+        return value + ": " + next;
     }
 }
 
@@ -107,6 +90,56 @@ class DataGraph {
         }
 
         return found;
+    }
+    public static void sortData(DataGraph g) {
+
+        List<String> finalOrder = new ArrayList<>();
+        // track any node/ values that have already been checked
+        HashMap<String, Boolean> checked = new HashMap<>();
+        for (Relation r: g.nodes) {
+            checked.put(r.value, false);
+        }
+
+
+
+        for(Relation r: g.nodes) {
+            if (!checked.get(r.value)) {
+                checkItem(r.value, g, checked, finalOrder);
+            }
+        }
+        Collections.reverse(finalOrder);
+        for(String item: finalOrder) {
+            System.out.println(item);
+        }
+    }
+
+    public static void checkItem(String value, DataGraph g, HashMap<String, Boolean> checked, List<String> finalOrder) {
+        // item has been checked
+        checked.replace(value, true);
+        Relation node = g.find(value);
+
+        if (node != null) {
+            // check other relations
+            for (String next : node.next) {
+                if (!checked.get(next)) {
+                    checkItem(next, g, checked, finalOrder);
+                }
+            }
+        }
+
+        finalOrder.add(value);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        for(Relation r: nodes) {
+            builder.append(r.toString());
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 }
 
