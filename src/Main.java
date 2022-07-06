@@ -9,7 +9,35 @@ public class Main {
         /// File reading class
         try {
             List<Relation> data = readFile("./src/clothing.txt");
-           System.out.println(data.toString());
+
+            HashMap<String, List<String>> map = new HashMap<>();
+            // add first item
+            // add relation to first item
+            // add second item if not exists
+            for(Relation r: data) {
+                if (!map.containsKey(r.start)) {
+                    map.put(r.start, new ArrayList<>());
+                }
+                if (!map.containsKey(r.end)) {
+                    map.put(r.end, new ArrayList<>());
+                }
+
+                map.get(r.end).add(r.start);
+            }
+
+
+            StringBuilder builder = new StringBuilder();
+            for (String key: map.keySet()) {
+                builder.append(key + ": ");
+                for (String item: map.get(key)) {
+                    builder.append(item + ", ");
+                }
+                builder.append("\n");
+            }
+
+            System.out.println(builder.toString());
+
+//           System.out.println(data.toString());
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
