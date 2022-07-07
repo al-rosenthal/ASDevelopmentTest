@@ -10,7 +10,8 @@ public class Main {
         /// File reading class
 
         try {
-            readFile("src/clothing.txt");
+            Graph g = readFile("src/clothing.txt");
+            Graph.depthSort(g);
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             e.printStackTrace();
@@ -18,7 +19,7 @@ public class Main {
 
     }
 
-    public static void readFile(String fileName) throws FileNotFoundException {
+    public static Graph readFile(String fileName) throws FileNotFoundException {
         Graph graph = new Graph();
         File file = new File(fileName);
         Scanner scanner = new Scanner(file);
@@ -37,7 +38,7 @@ public class Main {
         scanner.close();
         System.out.println(graph.toString());
 
-//        return graph;
+        return graph;
     }
 }
 
@@ -62,11 +63,49 @@ class Graph {
         for(String key: list.keySet()) {
             builder.append(key +": ");
             for(String item: list.get(key)) {
-                builder.append(item +" ");
+                builder.append(item +", ");
             }
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    public static void kahnSort(Graph g) {
+        int inDegree[] = new int[g.list.size()];
+
+
+    }
+
+    // depth first sort
+    public static void depthSort(Graph g) {
+        Stack<String> stack = new Stack<>();
+        Map<String, Boolean> checked = new HashMap<>();
+        for(String key: g.list.keySet()) {
+            checked.put(key, false);
+        }
+
+        for(String key: g.list.keySet()) {
+            if (!checked.get(key)) {
+                check(g, key, checked, stack);
+            }
+        }
+
+        while(!stack.empty()) {
+            System.out.println(stack.pop());
+        }
+
+    }
+
+    public static void check(Graph g, String key, Map<String, Boolean> checked, Stack<String> stack) {
+        checked.replace(key, true);
+
+        for (String value: g.list.get(key)) {
+            if (!checked.get(value)) {
+                check(g, value, checked, stack);
+            }
+        }
+
+        stack.add(key);
     }
 }
 
