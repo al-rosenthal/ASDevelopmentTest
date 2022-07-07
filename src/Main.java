@@ -11,7 +11,17 @@ public class Main {
 
         try {
             Graph g = readFile("src/clothing.txt");
-            Graph.depthSort(g);
+            StringBuilder builder = new StringBuilder();
+            System.out.println(g.usage.size());
+            for(String key: g.usage.keySet()) {
+                builder.append(key +": ");
+                builder.append(g.usage.get(key) +", ");
+                builder.append("\n");
+            }
+            System.out.println("Usage: \n" + builder.toString());
+//            Graph.depthSort(g);
+            Graph.kahnSort(g);
+
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             e.printStackTrace();
@@ -42,15 +52,27 @@ public class Main {
     }
 }
 
+class Relation {
+    String start, end;
+    Relation(String start, String end) {
+        this.start = start;
+        this.end = end;
+    }
+}
+
 class Graph {
     Map<String, List<String>> list = new HashMap<>();
-
+    Map<String, Integer> usage = new HashMap<>();
     public void addNode(String n) {
         list.putIfAbsent(n, new ArrayList<>());
+        usage.putIfAbsent(n, 0);
     }
 
     public void addDependency(String s, String e) {
         list.get(s).add(e);
+        Integer count = usage.get(e);
+        count++;
+        usage.replace(e, count);
     }
 
     public List<String> getDependencies(String n) {
@@ -71,9 +93,36 @@ class Graph {
     }
 
     public static void kahnSort(Graph g) {
-        int inDegree[] = new int[g.list.size()];
+
+        List<String> order = new ArrayList<>();
+        Stack<String> stack = new Stack<>();
+
+        // get starting nodes
+        for (String key: g.usage.keySet()) {
+            if (g.usage.get(key) == 0) {
+                stack.add(key);
+            }
+        }
+
+        while(!stack.isEmpty()) {
+            String key = stack.pop();
+            order.add(key);
+
+            for(String nextItem: g.list.get(key)) {
+                Integer count = g.usage.get(nextItem);
+                count--;
+                g.usage.replace(nextItem, count);
+
+                if (g.usage.get(nextItem) == 0) {
+                    stack.add(nextItem);
+                }
+            }
+        }
+
+        // put in a check for some bullshit
 
 
+        System.out.println(order.toString());
     }
 
     // depth first sort
@@ -87,6 +136,7 @@ class Graph {
         }
 
         for(String key: g.list.keySet()) {
+            System.out.println("First level: " + key);
             if (!checked.get(key)) {
                 check(g, key, checked, stack, order, level);
             }
@@ -97,12 +147,11 @@ class Graph {
         while(!stack.empty()) {
             System.out.println(stack.pop());
         }
-
     }
 
     public static void check(Graph g, String key, Map<String, Boolean> checked, Stack<String> stack, Map<Integer, List<String>>order, int level) {
         checked.replace(key, true);
-        order.putIfAbsent(level, new ArrayList<>());
+//        order.putIfAbsent(level, new ArrayList<>());
 
         for (String value: g.list.get(key)) {
             if (!checked.get(value)) {
