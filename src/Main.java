@@ -4,30 +4,23 @@ import java.io.FileNotFoundException;
 import java.sql.Array;
 import java.util.*;
 
+
+/*
+      tie pants belt are different
+ */
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Started");
-
-        /// File reading class
-
         try {
             Graph g = readFile("src/clothing.txt");
             StringBuilder builder = new StringBuilder();
-            System.out.println(g.usage.size());
-            for(String key: g.usage.keySet()) {
-                builder.append(key +": ");
-                builder.append(g.usage.get(key) +", ");
-                builder.append("\n");
-            }
-            System.out.println("Usage: \n" + builder.toString());
-//            Graph.depthSort(g);
             Graph.kahnSort(g);
-
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             e.printStackTrace();
+        } catch(Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
-
     }
 
     public static Graph readFile(String fileName) throws FileNotFoundException {
@@ -85,108 +78,61 @@ class Graph {
         return builder.toString();
     }
 
-    public static void kahnSort(Graph g) {
-        List<String> basic = new ArrayList<>();
+    public static void kahnSort(Graph g) throws Exception {
+//        List<String> basic = new ArrayList<>();
         List<String> group = new ArrayList<>();
         List<List<String>> finalGroupings = new ArrayList<>();
         Queue<String> queue = new LinkedList<>();
 
         // get starting nodes
-        List<String> sorted = new ArrayList<>(g.usage.keySet());
-        for (String key: sorted) {
+        for (String key: g.usage.keySet()) {
             if (g.usage.get(key) == 0) {
                 queue.add(key);
             }
         }
 
-        int ogQueueLength = queue.size();
-        System.out.println("STARTING STACK: " + queue.toString());
+        if (queue.isEmpty()) {
+            throw new Exception("No logical starting point.");
+        }
+
         while(!queue.isEmpty()) {
             String key = queue.remove();
-
-            ogQueueLength--;
             group.add(key);
-            basic.add(key);
+//            basic.add(key);
 
-            if (ogQueueLength == 0) {
-                System.out.println("Should run a few times");
-                finalGroupings.add(group);
-                group = new ArrayList<>();
-                ogQueueLength = queue.size();
-
-                System.out.println(ogQueueLength);
-            }
-            System.out.println(queue.size());
-            System.out.println("Key: " + key);
             for(String nextItem: g.list.get(key)) {
                 Integer count = g.usage.get(nextItem);
                 count--;
                 g.usage.replace(nextItem, count);
 
                 if (g.usage.get(nextItem) == 0) {
-                    System.out.println("Adding: " + nextItem + " to queue.");
+                    // close instruction grouping and start a new one
+                    if (!group.isEmpty()) {
+                        finalGroupings.add(group);
+                        group = new ArrayList<>();
+                    }
                     queue.add(nextItem);
                 }
             }
         }
 
+        // catch the last run of the sort
+        if (!group.isEmpty()) {
+            finalGroupings.add(group);
+        }
+
         for(String key: g.usage.keySet()) {
             if (g.usage.get(key) != 0) {
-                System.out.println("THERE IS SOMETHING BAD IN THE DATA");
+                throw new Exception("Circular data found, cannot sort properly.");
             }
         }
 
         StringBuilder builder = new StringBuilder();
         for(List<String> items: finalGroupings) {
             Collections.sort(items);
-            builder.append(String.join(",", items) + "\n");
+            builder.append(String.join(", ", items) + "\n");
         }
-
-        System.out.println("");
         System.out.println(builder.toString());
-        System.out.println("");
-        System.out.println(basic);
-    }
-
-    // depth first sort
-    public static void depthSort(Graph g) {
-        Stack<String> stack = new Stack<>();
-        int level = 0;
-        Map<Integer, List<String>> order = new HashMap<>();
-        Map<String, Boolean> checked = new HashMap<>();
-        for(String key: g.list.keySet()) {
-            checked.put(key, false);
-        }
-
-        for(String key: g.list.keySet()) {
-            System.out.println("First level: " + key);
-            if (!checked.get(key)) {
-                check(g, key, checked, stack, order, level);
-            }
-        }
-
-        System.out.println(order);
-
-        while(!stack.empty()) {
-            System.out.println(stack.pop());
-        }
-    }
-
-    public static void check(Graph g, String key, Map<String, Boolean> checked, Stack<String> stack, Map<Integer, List<String>>order, int level) {
-        checked.replace(key, true);
-//        order.putIfAbsent(level, new ArrayList<>());
-
-        for (String value: g.list.get(key)) {
-            if (!checked.get(value)) {
-                level++;
-                check(g, value, checked, stack, order, level);
-            }
-        }
-
-//        System.out.println(localLevel);
-//        order.get(localLevel).add(key);
-
-        stack.add(key);
     }
 }
 

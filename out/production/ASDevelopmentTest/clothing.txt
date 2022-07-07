@@ -10,6 +10,7 @@ t-shirt->dress shirt
 dress shirt->pants
 dress shirt->suit jacket
 tie->suit jacket
+tie->belt
 pants->suit jacket
 belt->suit jacket
 suit jacket->overcoat
