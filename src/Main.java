@@ -52,14 +52,6 @@ public class Main {
     }
 }
 
-class Relation {
-    String start, end;
-    Relation(String start, String end) {
-        this.start = start;
-        this.end = end;
-    }
-}
-
 class Graph {
     Map<String, List<String>> list = new HashMap<>();
     Map<String, Integer> usage = new HashMap<>();
@@ -93,35 +85,44 @@ class Graph {
     }
 
     public static void kahnSort(Graph g) {
-
         List<String> order = new ArrayList<>();
-        Stack<String> stack = new Stack<>();
+        List<String> group = new ArrayList<>();
+        Queue<String> queue = new LinkedList<>();
+//        int level = 0;
 
         // get starting nodes
-        for (String key: g.usage.keySet()) {
+        List<String> sorted = new ArrayList<>(g.usage.keySet());
+        for (String key: sorted) {
             if (g.usage.get(key) == 0) {
-                stack.add(key);
+                queue.add(key);
             }
         }
 
-        while(!stack.isEmpty()) {
-            String key = stack.pop();
-            order.add(key);
+        System.out.println("STARTING STACK: " + queue.toString());
+        int level = 0;
+        while(!queue.isEmpty()) {
+            String key = queue.remove();
 
+            order.add(key);
+            System.out.println("Key: " + key + " Level: " + level);
             for(String nextItem: g.list.get(key)) {
                 Integer count = g.usage.get(nextItem);
                 count--;
                 g.usage.replace(nextItem, count);
 
                 if (g.usage.get(nextItem) == 0) {
-                    stack.add(nextItem);
+                    System.out.println("Adding: " + nextItem + " to queue.");
+                    level++;
+                    queue.add(nextItem);
                 }
             }
         }
 
-        // put in a check for some bullshit
-
-
+        for(String key: g.usage.keySet()) {
+            if (g.usage.get(key) != 0) {
+                System.out.println("THERE IS SOMETHING BAD IN THE DATA");
+            }
+        }
         System.out.println(order.toString());
     }
 
