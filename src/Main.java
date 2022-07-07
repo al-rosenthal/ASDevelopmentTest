@@ -1,9 +1,8 @@
-import java.awt.image.AreaAveragingScaleFilter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.sql.Array;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /*
       tie pants belt are different
@@ -13,6 +12,7 @@ public class Main {
 
         try {
             JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setFileFilter(new FileNameExtensionFilter(".txt", "txt"));
             int checkInput = jFileChooser.showOpenDialog(null);
 
             if (checkInput == JFileChooser.APPROVE_OPTION) {
