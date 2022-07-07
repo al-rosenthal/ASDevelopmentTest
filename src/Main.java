@@ -1,3 +1,4 @@
+import java.awt.image.AreaAveragingScaleFilter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Array;
@@ -85,10 +86,10 @@ class Graph {
     }
 
     public static void kahnSort(Graph g) {
-        List<String> order = new ArrayList<>();
+        List<String> basic = new ArrayList<>();
         List<String> group = new ArrayList<>();
+        List<List<String>> finalGroupings = new ArrayList<>();
         Queue<String> queue = new LinkedList<>();
-//        int level = 0;
 
         // get starting nodes
         List<String> sorted = new ArrayList<>(g.usage.keySet());
@@ -98,13 +99,25 @@ class Graph {
             }
         }
 
+        int ogQueueLength = queue.size();
         System.out.println("STARTING STACK: " + queue.toString());
-        int level = 0;
         while(!queue.isEmpty()) {
             String key = queue.remove();
 
-            order.add(key);
-            System.out.println("Key: " + key + " Level: " + level);
+            ogQueueLength--;
+            group.add(key);
+            basic.add(key);
+
+            if (ogQueueLength == 0) {
+                System.out.println("Should run a few times");
+                finalGroupings.add(group);
+                group = new ArrayList<>();
+                ogQueueLength = queue.size();
+
+                System.out.println(ogQueueLength);
+            }
+            System.out.println(queue.size());
+            System.out.println("Key: " + key);
             for(String nextItem: g.list.get(key)) {
                 Integer count = g.usage.get(nextItem);
                 count--;
@@ -112,7 +125,6 @@ class Graph {
 
                 if (g.usage.get(nextItem) == 0) {
                     System.out.println("Adding: " + nextItem + " to queue.");
-                    level++;
                     queue.add(nextItem);
                 }
             }
@@ -123,7 +135,17 @@ class Graph {
                 System.out.println("THERE IS SOMETHING BAD IN THE DATA");
             }
         }
-        System.out.println(order.toString());
+
+        StringBuilder builder = new StringBuilder();
+        for(List<String> items: finalGroupings) {
+            Collections.sort(items);
+            builder.append(String.join(",", items) + "\n");
+        }
+
+        System.out.println("");
+        System.out.println(builder.toString());
+        System.out.println("");
+        System.out.println(basic);
     }
 
     // depth first sort
