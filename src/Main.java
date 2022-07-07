@@ -79,6 +79,8 @@ class Graph {
     // depth first sort
     public static void depthSort(Graph g) {
         Stack<String> stack = new Stack<>();
+        int level = 0;
+        Map<Integer, List<String>> order = new HashMap<>();
         Map<String, Boolean> checked = new HashMap<>();
         for(String key: g.list.keySet()) {
             checked.put(key, false);
@@ -86,9 +88,11 @@ class Graph {
 
         for(String key: g.list.keySet()) {
             if (!checked.get(key)) {
-                check(g, key, checked, stack);
+                check(g, key, checked, stack, order, level);
             }
         }
+
+        System.out.println(order);
 
         while(!stack.empty()) {
             System.out.println(stack.pop());
@@ -96,14 +100,19 @@ class Graph {
 
     }
 
-    public static void check(Graph g, String key, Map<String, Boolean> checked, Stack<String> stack) {
+    public static void check(Graph g, String key, Map<String, Boolean> checked, Stack<String> stack, Map<Integer, List<String>>order, int level) {
         checked.replace(key, true);
+        order.putIfAbsent(level, new ArrayList<>());
 
         for (String value: g.list.get(key)) {
             if (!checked.get(value)) {
-                check(g, value, checked, stack);
+                level++;
+                check(g, value, checked, stack, order, level);
             }
         }
+
+//        System.out.println(localLevel);
+//        order.get(localLevel).add(key);
 
         stack.add(key);
     }
