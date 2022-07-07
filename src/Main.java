@@ -3,17 +3,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Array;
 import java.util.*;
-
+import javax.swing.*;
 
 /*
       tie pants belt are different
  */
 public class Main {
     public static void main(String[] args) {
+
         try {
-            Graph g = readFile("src/clothing.txt");
-            StringBuilder builder = new StringBuilder();
-            Graph.kahnSort(g);
+            JFileChooser jFileChooser = new JFileChooser();
+            int checkInput = jFileChooser.showOpenDialog(null);
+
+            if (checkInput == JFileChooser.APPROVE_OPTION) {
+                File openedFile = jFileChooser.getSelectedFile();
+                Graph g = readFile(openedFile.getAbsolutePath());
+                Graph.kahnSort(g);
+            }
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
             e.printStackTrace();
@@ -40,8 +46,6 @@ public class Main {
             }
         }
         scanner.close();
-        System.out.println(graph.toString());
-
         return graph;
     }
 }
@@ -135,15 +139,3 @@ class Graph {
         System.out.println(builder.toString());
     }
 }
-
-/*
-
-    Steps
-    1. Read a file
-    2. Parse data into useful format
-    3. Place data into structure (Directed Graph)
-    4. Print out correct order
-
-    // Bonus prompt user for a file?
-
- */
