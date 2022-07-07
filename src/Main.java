@@ -18,6 +18,7 @@ public class Main {
             if (checkInput == JFileChooser.APPROVE_OPTION) {
                 File openedFile = jFileChooser.getSelectedFile();
                 Graph g = readFile(openedFile.getAbsolutePath());
+//                Graph g = readFile("src/clothing.txt");
                 Graph.kahnSort(g);
             }
         } catch (FileNotFoundException e) {
